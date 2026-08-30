@@ -23,7 +23,7 @@ jobs:
           cache: true
 
       - name: Configuration CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S Game_1 -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Compilation
         run: cmake --build build --config Release
