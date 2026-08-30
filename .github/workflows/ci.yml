@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.7.2"
+          host: "windows"
+          target: desktop
+          cache: true
+
+      - name: Configuration CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compilation
+        run: cmake --build build --config Release
