@@ -3,12 +3,22 @@ name: CI
 on:
   push:
     branches-ignore: [ ]
+    tags: [ "v*.*.*" ]
   pull_request:
     branches: [ "main", "develop" ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: windows
+          - os: ubuntu-latest
+            artifact_name: linux
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout du code
@@ -18,12 +28,75 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: "6.7.2"
-          host: "windows"
+          host: ${{ matrix.os == 'windows-latest' && 'windows' || 'linux' }}
           target: desktop
           cache: true
+
+      - name: Dépendances Linux (pour builds Qt Widgets)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libxkbcommon-dev
 
       - name: Configuration CMake
         run: cmake -S Game_1 -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Compilation
         run: cmake --build build --config Release
+
+      - name: Exécution des tests
+        working-directory: build
+        run: ctest --output-on-failure --build-config Release
+
+      # --- Packaging (uniquement sur un tag de version, ex: v0.1.0) ---
+
+      - name: Installation dans un dossier propre
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: build
+        run: cmake --install . --config Release --prefix install
+
+      - name: Packaging Windows (windeployqt + zip)
+        if: startsWith(github.ref, 'refs/tags/v') && matrix.os == 'windows-latest'
+        working-directory: build
+        run: |
+          windeployqt --release install\bin\Game_1.exe
+          Compress-Archive -Path install\* -DestinationPath Game_1-windows.zip
+
+      - name: Packaging Linux (AppImage)
+        if: startsWith(github.ref, 'refs/tags/v') && matrix.os == 'ubuntu-latest'
+        working-directory: build
+        run: |
+          mkdir -p AppDir/usr
+          cp -r install/* AppDir/usr/
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
+          mv Game_1*.AppImage Game_1-linux.AppImage
+
+      - name: Publication de l'artefact
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: Game_1-${{ matrix.artifact_name }}
+          path: |
+            build/Game_1-windows.zip
+            build/Game_1-linux.AppImage
+          if-no-files-found: ignore
+          retention-days: 30
+
+  release:
+    name: Publier une release GitHub
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération de tous les artefacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Création de la release GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
