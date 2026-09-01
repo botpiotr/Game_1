@@ -1,6 +1,5 @@
-#include "mainwindow.h"
-
 #include <QApplication>
+#include <QMainWindow>
 
 #include "screens/screenmanager.h"
 #include "screens/mainmenuscreen.h"
@@ -10,9 +9,9 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
-    MainWindow window;
+    QMainWindow window;
     window.resize(800, 600);
     window.setWindowTitle("Game_1");
 
@@ -27,5 +26,5 @@ int main(int argc, char *argv[])
 
     window.show();
 
-    return a.exec();
+    return app.exec();
 }
