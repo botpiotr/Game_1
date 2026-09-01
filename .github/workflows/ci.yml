@@ -45,7 +45,15 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Exécution des tests
+        if: matrix.os == 'windows-latest'
         working-directory: build
+        run: ctest --output-on-failure --build-config Release
+
+      - name: Exécution des tests (mode offscreen, pas de serveur graphique en CI)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: build
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: ctest --output-on-failure --build-config Release
 
       # --- Packaging (uniquement sur un tag de version, ex: v0.1.0) ---
