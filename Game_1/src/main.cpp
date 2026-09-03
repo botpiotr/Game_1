@@ -2,6 +2,8 @@
 
 #include <QApplication>
 
+#include "settings/gamesettings.h"
+
 #include "screens/screenmanager.h"
 #include "screens/mainmenuscreen.h"
 #include "screens/optionsscreen.h"
@@ -15,6 +17,21 @@ int main(int argc, char *argv[])
     MainWindow window;
     window.resize(800, 600);
     window.setWindowTitle("Game_1");
+
+    // Applique immédiatement le mode plein écran/fenêtré chargé depuis
+    // settings.json, et reste synchronisé si l'utilisateur le change
+    // plus tard depuis l'écran Options.
+    GameSettings &settings = GameSettings::instance();
+    if (settings.fullscreen()) {
+        window.showFullScreen();
+    }
+    QObject::connect(&settings, &GameSettings::fullscreenChanged, &window, [&window](bool fullscreen) {
+        if (fullscreen) {
+            window.showFullScreen();
+        } else {
+            window.showNormal();
+        }
+    });
 
     auto *screenManager = new ScreenManager(&window);
     screenManager->registerScreen(ScreenId::MainMenu, new MainMenuScreen());

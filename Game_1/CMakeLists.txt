@@ -23,6 +23,9 @@ add_library(game1_core
     src/mainwindow.h
     src/mainwindow.ui
 
+    src/settings/gamesettings.h
+    src/settings/gamesettings.cpp
+
     src/screens/abstractscreen.h
     src/screens/screenmanager.cpp
     src/screens/screenmanager.h
