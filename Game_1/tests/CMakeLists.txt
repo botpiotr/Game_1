@@ -16,3 +16,10 @@ add_executable(tests_gamesettings
 target_link_libraries(tests_gamesettings PRIVATE Qt6::Test game1_core)
 
 add_test(NAME tests_gamesettings COMMAND tests_gamesettings)
+
+add_executable(tests_battleengine
+    test_battleengine.cpp
+)
+target_link_libraries(tests_battleengine PRIVATE Qt6::Test game1_core)
+
+add_test(NAME tests_battleengine COMMAND tests_battleengine)

@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
+# find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
+# find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Test)
 # --- Bibliothèque principale (logique + écrans, réutilisée par l'exécutable et les tests) ---
 add_library(game1_core
     # src/hextileitem.cpp
@@ -35,30 +37,6 @@ add_library(game1_core
     src/screens/creditsscreen.h
     src/screens/gameboardscreen.cpp
     src/screens/gameboardscreen.h
-    src/screens/cardbattlescreen.cpp
-    src/screens/cardbattlescreen.h
-
-    src/game/element.h
-    src/game/element.cpp
-    src/game/hand.h
-    src/game/hand.cpp
-    src/game/battleengine.h
-    src/game/battleengine.cpp
-    src/game/cardvisuals.h
-    src/game/cardvisuals.cpp
-
-    src/ui/cardwidget.h
-    src/ui/cardwidget.cpp
-    src/ui/cardstackwidget.h
-    src/ui/cardstackwidget.cpp
-    src/ui/playerhanddock.h
-    src/ui/playerhanddock.cpp
-    src/ui/roundtrackerwidget.h
-    src/ui/roundtrackerwidget.cpp
-    src/ui/boardcolumnwidget.h
-    src/ui/boardcolumnwidget.cpp
-    src/ui/battleboardwidget.h
-    src/ui/battleboardwidget.cpp
 )
 target_include_directories(game1_core PUBLIC src)
 target_link_libraries(game1_core PUBLIC Qt6::Widgets)

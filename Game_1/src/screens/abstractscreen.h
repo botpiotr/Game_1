@@ -11,7 +11,8 @@ enum class ScreenId {
     MainMenu,
     Options,
     Credits,
-    GameBoard
+    GameBoard,
+    CardBattle
 };
 
 /**

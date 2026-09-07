@@ -9,6 +9,7 @@
 #include "screens/optionsscreen.h"
 #include "screens/creditsscreen.h"
 #include "screens/gameboardscreen.h"
+#include "screens/cardbattlescreen.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
     screenManager->registerScreen(ScreenId::Options, new OptionsScreen());
     screenManager->registerScreen(ScreenId::Credits, new CreditsScreen());
     screenManager->registerScreen(ScreenId::GameBoard, new GameBoardScreen());
+    screenManager->registerScreen(ScreenId::CardBattle, new CardBattleScreen());
 
     window.setCentralWidget(screenManager);
     screenManager->showScreen(ScreenId::MainMenu);

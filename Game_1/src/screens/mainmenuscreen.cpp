@@ -16,7 +16,7 @@ MainMenuScreen::MainMenuScreen(QWidget *parent)
     auto *quitButton = new QPushButton("Quitter");
 
     connect(playButton, &QPushButton::clicked, this, [this]() {
-        emit navigateTo(ScreenId::GameBoard);
+        emit navigateTo(ScreenId::CardBattle);
     });
     connect(optionsButton, &QPushButton::clicked, this, [this]() {
         emit navigateTo(ScreenId::Options);
