@@ -1,0 +1,85 @@
+# Workflow de release automatique
+# Déclenché à chaque push de tag de la forme "v1.0.0"
+# -> compile le projet en Release, embarque les DLL Qt, zippe, et publie sur GitHub Releases
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Récupère le code du repo
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # 2. Installe Qt6 (adapte la version à celle utilisée dans ton projet)
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.7.0"
+          host: "windows"
+          target: "desktop"
+          arch: "win64_msvc2019_64"
+
+      # 3. Configure le build avec CMake en mode Release
+      - name: Configurer CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      # 4. Compile le projet
+      - name: Compiler
+        run: cmake --build build --config Release
+
+      # 5. Prépare un dossier de distribution avec l'exe + les DLL Qt nécessaires
+      #    ATTENTION: remplace "Game_1.exe" par le nom réel de ton exécutable,
+      #    et adapte le chemin de sortie si CMake ne met pas le binaire dans build/Release
+      - name: Préparer le package (windeployqt)
+        run: |
+          mkdir dist
+          copy build\Release\Game_1.exe dist\
+          windeployqt dist\Game_1.exe
+
+      # 6. Zippe le dossier de distribution
+      - name: Créer l'archive zip
+        run: Compress-Archive -Path dist\* -DestinationPath Game_1-windows.zip
+
+      # 7. Publie la release GitHub avec le zip en asset
+      - name: Publier la release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Game_1-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Optionnel : décommente ce job si tu veux aussi distribuer une version Linux
+  # build-linux:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout du code
+  #       uses: actions/checkout@v4
+  #     - name: Installer Qt
+  #       uses: jurplel/install-qt-action@v4
+  #       with:
+  #         version: "6.7.0"
+  #         host: "linux"
+  #         target: "desktop"
+  #     - name: Configurer CMake
+  #       run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+  #     - name: Compiler
+  #       run: cmake --build build --config Release
+  #     - name: Créer l'archive
+  #       run: |
+  #         mkdir dist
+  #         cp build/Game_1 dist/
+  #         tar -czvf Game_1-linux.tar.gz -C dist .
+  #     - name: Publier la release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         files: Game_1-linux.tar.gz
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
