@@ -78,13 +78,26 @@ jobs:
         run: |
           mkdir -p AppDir/usr
           cp -r install/* AppDir/usr/
+
+          # Fichier .desktop minimal requis par le format AppImage
+          cat > Game_1.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=Game_1
+          Exec=Game_1
+          Icon=Game_1
+          Categories=Game;
+          EOF
+
+          # Icône placeholder (1x1 px) — à remplacer plus tard par une vraie icône du jeu
+          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" | base64 -d > Game_1.png
+
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
           export PATH="$PWD:$PATH"
-          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt --output appimage
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --executable AppDir/usr/bin/Game_1 --desktop-file Game_1.desktop --icon-file Game_1.png --plugin qt --output appimage
           mv Game_1*.AppImage Game_1-linux.AppImage
-
       - name: Publication de l'artefact
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v4
