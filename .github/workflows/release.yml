@@ -28,8 +28,9 @@ jobs:
           arch: "win64_msvc2019_64"
 
       # 3. Configure le build avec CMake en mode Release
+      #    Le CMakeLists.txt se trouve dans le sous-dossier Game_1/, pas à la racine du repo
       - name: Configurer CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S Game_1 -DCMAKE_BUILD_TYPE=Release
 
       # 4. Compile le projet
       - name: Compiler
